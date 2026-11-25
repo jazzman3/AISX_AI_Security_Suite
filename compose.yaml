@@ -1,0 +1,137 @@
+services:
+  gateway:
+    build: ./01-llm-security-gateway
+    environment:
+      APP_TITLE: "LLM Security Gateway"
+      APP_KIND: "gateway"
+      ADMIN_USER: "${ADMIN_USER:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Set a strong ADMIN_PASSWORD in .env}"
+      DEMO_MODE: "${DEMO_MODE:-true}"
+      DB_PATH: /data/app.db
+    ports:
+      - "127.0.0.1:8101:8080"
+    volumes:
+      - gateway_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  agent:
+    build: ./02-agent-permission-broker
+    environment:
+      APP_TITLE: "Agent Permission Broker"
+      APP_KIND: "agent"
+      ADMIN_USER: "${ADMIN_USER:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Set a strong ADMIN_PASSWORD in .env}"
+      DEMO_MODE: "${DEMO_MODE:-true}"
+      DB_PATH: /data/app.db
+    ports:
+      - "127.0.0.1:8102:8080"
+    volumes:
+      - agent_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  posture:
+    build: ./03-ai-posture-manager
+    environment:
+      APP_TITLE: "AI Security Posture Manager"
+      APP_KIND: "posture"
+      ADMIN_USER: "${ADMIN_USER:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Set a strong ADMIN_PASSWORD in .env}"
+      DEMO_MODE: "${DEMO_MODE:-true}"
+      DB_PATH: /data/app.db
+    ports:
+      - "127.0.0.1:8103:8080"
+    volumes:
+      - posture_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  soc:
+    build: ./04-soc-triage-copilot
+    environment:
+      APP_TITLE: "SOC Triage Copilot"
+      APP_KIND: "soc"
+      ADMIN_USER: "${ADMIN_USER:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Set a strong ADMIN_PASSWORD in .env}"
+      DEMO_MODE: "${DEMO_MODE:-true}"
+      DB_PATH: /data/app.db
+    ports:
+      - "127.0.0.1:8104:8080"
+    volumes:
+      - soc_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  redteam:
+    build: ./05-ai-redteam-evaluator
+    environment:
+      APP_TITLE: "AI Red-Team Evaluator"
+      APP_KIND: "redteam"
+      ADMIN_USER: "${ADMIN_USER:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Set a strong ADMIN_PASSWORD in .env}"
+      DEMO_MODE: "${DEMO_MODE:-true}"
+      DB_PATH: /data/app.db
+    ports:
+      - "127.0.0.1:8105:8080"
+    volumes:
+      - redteam_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  gateway_data:
+  agent_data:
+  posture_data:
+  soc_data:
+  redteam_data:
